@@ -95,13 +95,13 @@
   show-checkbox
   node-key="id"
   ref="tree"
-  :default-expanded-keys="keys"
-  :default-checked-keys="key"
+  :default-expanded-keys='selectedKeys'
+  :default-checked-keys="selectedKeys"
   :props="defaultProps">
 </el-tree>
   <div slot="footer" class="dialog-footer">
     <el-button @click="accboxshow=false">取 消</el-button>
-    <el-button type="primary" @click="accboxclose">确 定</el-button>
+    <el-button type="primary" @click="grantRoleSubmit ">确 定</el-button>
   </div>
 </el-dialog>
 
@@ -113,8 +113,8 @@ import {
   getAllRoleList,
   removeRightByUserId,
   addFormVisible,
-  getAllRightList,
-  accRoleByList
+  getAllRightList
+  // accRoleByList
 } from '@/api/rights_index.js'
 export default {
   data () {
@@ -132,10 +132,12 @@ export default {
       dialogFormVisible: false,
       formLabelWidth: '120px',
       // 授权
+      // 当前树形控件中默认被选择节点数组，这个数组中的每一个值都是对应的权限id
+      selectedKeys: [],
       accboxshow: false,
       data: [{ id: 0, label: 0 }],
       keys: [],
-      key: [],
+
       defaultProps: {
         children: 'children',
         label: 'authName'
@@ -150,18 +152,31 @@ export default {
     showaccbox (row) {
       this.accboxshow = true
       getAllRightList('tree').then((reslut) => {
-        console.log(reslut.data)
         this.data = reslut.data.data
-        this.roleId = row.id
+        this.selectedKeys = []
+        // console.log(row.children)
+        row.children.forEach(first => {
+          // console.log(element)
+          // console.log(first.children)
+          first.children.forEach(second => {
+            // console.log(second.children)
+            second.children.forEach(third => {
+              this.selectedKeys.push(third.id)
+            })
+          })
+        })
       })
     },
     // 点击确定提交默认数据
-    async accboxclose () {
-      console.log(this.$refs.tree.getCheckedKeys())
-      let rids = this.$refs.tree.getCheckedKeys()
-      // 1.通过 accRoleByList获取当前所有被选中的节点对象
-      let retule = await accRoleByList(this.roleId, rids.join(','))
-      console.log(retule)
+    async grantRoleSubmit  () {
+      // console.log(this.$refs.tree.getCheckedKeys())
+      // 可以获取一个数组，里面就包含着当前被选中的节点对象
+      let allNodes = this.$refs.tree.getCheckedKeys()
+      let halfNodes = this.$refs.tree.getHalfCheckedKeys()
+      allNodes = [...allNodes, ...halfNodes]
+      allNodes.map(value => {
+        console.log(value)
+      })
     },
     // 编辑
     text () {

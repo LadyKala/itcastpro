@@ -42,11 +42,6 @@ export const addFormVisible = (obj) => {
     })
 }
 // 授权角色
-export const accRoleByList = (roleId, rids) => {
-  console.log(roleId)
-  console.log(rids)
+export const grantRoleSubmit = (roleId, rids) => {
   return axios.post(`roles/${roleId}/rights`, { rids: rids })
-    .then((retule) => {
-      console.log(retule)
-    })
 }
